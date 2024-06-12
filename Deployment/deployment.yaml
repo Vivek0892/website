@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: portfolio-container
-        image: tejomayabysivis.in/portfolio/vivek_portfolio:v5
+        image: tejomayabysivis.in/portfolio/vivek_portfolio:v6
         resources:
           requests:
             memory: "64Mi"
