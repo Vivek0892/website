@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: web-container
-        image: tejomayabysivis.in/portfolio/vivek_portfolio:v.0
+        image: tejomayabysivis.in/portfolio/vivek_portfolio:v1
         ports:
         - containerPort: 80
