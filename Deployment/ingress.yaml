@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portfolio-ingress
+  annotations:
+    # Ensuring GKE uses the correct Ingress class
+    kubernetes.io/ingress.class: "gce"
+    # If you need a static IP, specify the static IP name in the annotation
+    # kubernetes.io/ingress.global-static-ip-name: "your-static-ip-name"
+    # For HTTPS, you can specify the secret containing your TLS certificate
+    # ingress.gcp.kubernetes.io/pre-shared-cert: "your-tls-cert"
+spec:
+  rules:
+  #- host: your-domain.com  # Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: portfolio-service
+            port:
+              number: 80
+  # For HTTPS, uncomment the following lines and specify your TLS secret
+  # tls:
+  # - hosts:
+  #   - your-domain.com  # Replace with your actual domain
+  #   secretName: your-tls-secret  # Replace with your actual TLS secret
