@@ -1,56 +1,38 @@
 pipeline {
-  agent {
-    kubernetes {
-      cloud "kubernetes"
-      yamlFile "agent-build.yaml"
-    }
-  }
-  
-  stages {
-    stage('Build and push to gcr') {
-      steps {
-        container("gcloud-builder") {
-          sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/portfolio-app'
-          script {
-            // Generate a unique tag based on the commit hash
-            def commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-            env.dockerTag = "dev-commit-${commitHash}-${BUILD_NUMBER}"
-            env.gkeClusterName = 'jenkins-cd'
-            env.Zone = 'us-central1-c'
-            env.gkeProject = 'turing-thought-421806'
-            
-            sh "docker build -t portfolio-app:${env.dockerTag} ."
-            
-            withCredentials([file(credentialsId: 'gcr-id', variable: 'SERVICE_ACCOUNT_KEY')]) {
-              sh 'gcloud auth activate-service-account --key-file=$SERVICE_ACCOUNT_KEY'
-              sh "gcloud container clusters get-credentials ${env.gkeClusterName} --zone ${env.Zone} --project ${env.gkeProject}"
-              sh "gcloud auth configure-docker"
+    agent { label 'jenkins' }
+
+    stages {
+        stage('Build') {
+            steps {
+                // Building a Docker image from the Dockerfile in the repository
+                sh 'docker build -t portfolio/vivek_portfolio_v1 .'
             }
-            
-            env.gcrImage = "gcr.io/${env.gkeProject}/portfolio-app:${env.dockerTag}"
-            sh "docker tag portfolio-app:${env.dockerTag} ${env.gcrImage}"
-            sh "docker push ${env.gcrImage}"
-          }
         }
-      }
-    }
+        stage('Push to Harbor') {
+            environment {
+                // Referencing Docker credentials stored in Jenkins credential store
+                DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
+            }
+            steps {
+                script {
+                    // Logging into Harbor Docker registry using secure credentials
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_CREDENTIALS_PSW', usernameVariable: 'DOCKER_CREDENTIALS_USR')]) {
+                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin tejomayabysivis.in"
+                    }
 
-    stage('Deploy to GKE') {
-      steps {
-        container("gcloud-builder") {
-          script {
-            sh "kubectl set image deployment/portfolio-app portfolio-app=${env.gcrImage} -n portfolio"
-          }
+                    // Tagging the Docker image with the build number
+                    sh 'docker tag portfolio/vivek_portfolio_v1 tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                    
+                    // Pushing the tagged Docker image to the Harbor registry
+                    sh 'docker push tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                }
+            }
         }
-      }
-    } 
-  }
-
-  post {
-    always {
-      // Clean up the agent pod after the job completes
-      cleanWs()
-      deleteDir()
+        stage('Trigger GitHub Push') {
+            steps {
+                // Triggering another Jenkins job if required
+                build job: 'push_image_tag_portfolio', wait: true, parameters: [string(name: 'Build_Number_Image', value: "${BUILD_NUMBER}")]
+            }
+        }
     }
-  }
 }
