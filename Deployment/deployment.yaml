@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp-deployment
+  name: portfolio-deployment
   labels:
     app: portfolio
 spec:
@@ -15,7 +15,7 @@ spec:
         app: portfolio
     spec:
       containers:
-      - name: web-container
+      - name: portfolio-container
         image: tejomayabysivis.in/portfolio/vivek_portfolio:v1
         ports:
         - containerPort: 80
