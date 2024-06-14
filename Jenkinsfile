@@ -1,19 +1,32 @@
 pipeline {
     agent { label 'jenkins' }
-
+    environment {
+        // SonarQube environment variables
+        SONAR_SCANNER_HOME = tool 'SonarQubeScanner' // Make sure you have set up the tool in Jenkins
+    }
     stages {
-        stage("Code Quality") {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'npm install sonar-scanner'
-                    sh 'npm run sonar'
-                }
-            }
-        }
         stage('Build') {
             steps {
                 // Building a Docker image from the Dockerfile in the repository
                 sh 'docker build -t portfolio/demo_portfolio_v1 .'
+            }
+        }
+        stage('SonarQube Analysis') {
+            environment {
+                // Provide the SonarQube URL and token
+                SONAR_TOKEN = credentials('sonarqube-token')
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') { // 'SonarQube' is the name configured in Jenkins
+                    // Running SonarQube analysis
+                    sh '''
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=portfolio \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://35.222.230.72:9000 \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    '''
+                }
             }
         }
         stage('Push to Harbor') {
@@ -25,7 +38,7 @@ pipeline {
                 script {
                     // Logging into Harbor Docker registry using secure credentials
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_CREDENTIALS_PSW', usernameVariable: 'DOCKER_CREDENTIALS_USR')]) {
-                        sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin www.tejomayabysivis.in'
+                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin www.tejomayabysivis.in"
                     }
 
                     // Tagging the Docker image with the build number
@@ -41,6 +54,12 @@ pipeline {
                 // Triggering another Jenkins job if required
                 build job: 'push_image_tag_portfolio', wait: true, parameters: [string(name: 'Build_Number_Image', value: "${BUILD_NUMBER}")]
             }
+        }
+    }
+    post {
+        always {
+            // Always archive SonarQube results and print a message
+            echo "Pipeline completed!"
         }
     }
 }
