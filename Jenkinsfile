@@ -1,15 +1,15 @@
 pipeline {
     agent { label 'jenkins' }
 
-    stage ("Code Quality") {
+    stages {
+        stage("Code Quality") {
             steps {
-                withSonarQubeEnv("SonarQube") {
-                    sh "npm install sonar-scanner"
-                    sh "npm run sonar"
+                withSonarQubeEnv('SonarQube') {
+                    sh 'npm install sonar-scanner'
+                    sh 'npm run sonar'
                 }
             }
         }
-    stages {
         stage('Build') {
             steps {
                 // Building a Docker image from the Dockerfile in the repository
@@ -25,7 +25,7 @@ pipeline {
                 script {
                     // Logging into Harbor Docker registry using secure credentials
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_CREDENTIALS_PSW', usernameVariable: 'DOCKER_CREDENTIALS_USR')]) {
-                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin www.tejomayabysivis.in"
+                        sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin www.tejomayabysivis.in'
                     }
 
                     // Tagging the Docker image with the build number
