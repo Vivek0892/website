@@ -1,6 +1,14 @@
 pipeline {
     agent { label 'jenkins' }
 
+    stage ("Code Quality") {
+            steps {
+                withSonarQubeEnv("SonarQube") {
+                    sh "npm install sonar-scanner"
+                    sh "npm run sonar"
+                }
+            }
+        }
     stages {
         stage('Build') {
             steps {
