@@ -24,7 +24,7 @@ pipeline {
                     sh 'docker tag portfolio/demo_portfolio_v1 www.tejomayabysivis.in/portfolio/demo_portfolio:v${BUILD_NUMBER}'
                     
                     // Pushing the tagged Docker image to the Harbor registry
-                    sh 'docker push 3www.tejomayabysivis.in/portfolio/demo_portfolio:v${BUILD_NUMBER}'
+                    sh 'docker push www.tejomayabysivis.in/portfolio/demo_portfolio:v${BUILD_NUMBER}'
                 }
             }
         }
