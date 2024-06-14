@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Building a Docker image from the Dockerfile in the repository
-                sh 'docker build -t portfolio/vivek_portfolio_v1 .'
+                sh 'docker build -t portfolio/demo_portfolio_v1 .'
             }
         }
         stage('Push to Harbor') {
@@ -17,14 +17,14 @@ pipeline {
                 script {
                     // Logging into Harbor Docker registry using secure credentials
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_CREDENTIALS_PSW', usernameVariable: 'DOCKER_CREDENTIALS_USR')]) {
-                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin tejomayabysivis.in"
+                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin 35.222.230.72"
                     }
 
                     // Tagging the Docker image with the build number
-                    sh 'docker tag portfolio/vivek_portfolio_v1 tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                    sh 'docker tag portfolio/vivek_portfolio_v1 35.222.230.72/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
                     
                     // Pushing the tagged Docker image to the Harbor registry
-                    sh 'docker push tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                    sh 'docker push 35.222.230.72/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
                 }
             }
         }
