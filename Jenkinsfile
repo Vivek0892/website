@@ -17,14 +17,14 @@ pipeline {
                 script {
                     // Logging into Harbor Docker registry using secure credentials
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_CREDENTIALS_PSW', usernameVariable: 'DOCKER_CREDENTIALS_USR')]) {
-                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin 35.222.230.72"
+                        sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin www.tejomayabysivis.in"
                     }
 
                     // Tagging the Docker image with the build number
-                    sh 'docker tag portfolio/vivek_portfolio_v1 35.222.230.72/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                    sh 'docker tag portfolio/vivek_portfolio_v1 www.tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
                     
                     // Pushing the tagged Docker image to the Harbor registry
-                    sh 'docker push 35.222.230.72/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
+                    sh 'docker push 3www.tejomayabysivis.in/portfolio/vivek_portfolio:v${BUILD_NUMBER}'
                 }
             }
         }
