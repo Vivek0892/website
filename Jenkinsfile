@@ -1,8 +1,8 @@
 pipeline {
     agent { label 'jenkins' }
     environment {
-        // SonarQube environment variables
-        SONAR_SCANNER_HOME = tool 'SonarQubeScanner' // Make sure you have set up the tool in Jenkins
+        // Reference the SonarQube Scanner tool installed in Jenkins
+        SONAR_SCANNER_HOME = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
     }
     stages {
         stage('Build') {
@@ -14,14 +14,14 @@ pipeline {
         stage('SonarQube Analysis') {
             environment {
                 // Provide the SonarQube URL and token
-                SONAR_TOKEN = credentials('sonarqube-token')
+                SONAR_TOKEN = credentials('sonar-token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') { // 'SonarQube' is the name configured in Jenkins
                     // Running SonarQube analysis
                     sh '''
                         ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=portfolio \
+                        -Dsonar.projectKey=pipeline-job_portfolio-CLIENT \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://35.222.230.72:9000 \
                         -Dsonar.login=${SONAR_TOKEN}
