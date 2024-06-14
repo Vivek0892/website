@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: portfolio-container
-        image: www.tejomayabysivis.in/portfolio/demo_portfolio:v8
+        image: www.tejomayabysivis.in/portfolio/demo_portfolio:v9
         resources:
           requests:
             memory: "64Mi"
