@@ -14,7 +14,7 @@ pipeline {
         stage('SonarQube Analysis') {
             environment {
                 // Provide the SonarQube URL and token
-                SONAR_TOKEN = credentials('sonar-token')
+                SONAR_TOKEN = credentials('sonarqube-token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') { // 'SonarQube' is the name configured in Jenkins
